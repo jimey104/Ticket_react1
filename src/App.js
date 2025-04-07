@@ -10,9 +10,9 @@ function App() {
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/select/:pId" element={<SelectSeat />} />
-                <Route path="/confirm/:pId" element={<ConfirmBooking />} />
-                <Route path="/complete/:pId" element={<CompleteBooking />} />
+                <Route path="/select/:rId" element={<SelectSeat />} />
+                <Route path="/confirm/:rId" element={<ConfirmBooking />} />
+                <Route path="/complete/:rId" element={<CompleteBooking />} />
             </Routes>
         </BrowserRouter>
     );

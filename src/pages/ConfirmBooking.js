@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function ReservationInfo() {
-    const { pId } = useParams();
+    const { rId } = useParams();
     const navigate = useNavigate();
 
     const [reservationData, setReservationData] = useState(null);
@@ -13,7 +13,7 @@ function ReservationInfo() {
 
     // 백엔드에서 예약 정보 가져오기
     useEffect(() => {
-        axios.get(`http://localhost:8787/reservation/${pId}`)
+        axios.get(`http://localhost:3001/reservations/${rId}`)
             .then(response => {
                 console.log("📌 예약 데이터:", response.data);
                 setReservationData(response.data);
@@ -22,7 +22,7 @@ function ReservationInfo() {
                 console.error("🚨 예약 정보 로드 실패:", error);
                 setError("예약 정보를 불러오지 못했습니다.");
             });
-    }, [pId]);
+    }, [rId]);
 
     const handleReserve = () => {
         if (!reservationData) {
@@ -41,12 +41,12 @@ function ReservationInfo() {
 
         console.log("📌 전송할 데이터:", requestData);
 
-        axios.post(`http://localhost:8787/reserve/${pId}`, requestData, {
+        axios.post(`http://localhost:3001/reservations?rId=${rId}`, requestData, {
             headers: { "Content-Type": "application/json" }
         })
             .then(response => {
                 console.log("✅ 예매 성공:", response.data);
-                navigate(`/confirmation/${pId}`);
+                navigate(`/confirmation/${rId}`);
             })
             .catch(error => {
                 console.error("🚨 예매 실패:", error.response ? error.response.data : error.message);
