@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
 import SelectSeat from "./pages/SelectSeat";
 import ConfirmBooking from "./pages/ConfirmBooking";
 import CompleteBooking from "./pages/CompleteBooking";
@@ -9,10 +8,9 @@ function App() {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/select/:rId" element={<SelectSeat />} />
-                <Route path="/confirm/:rId" element={<ConfirmBooking />} />
-                <Route path="/complete/:rId" element={<CompleteBooking />} />
+                <Route path="/select/:key" element={<SelectSeat />} />
+                <Route path="/confirm/:key" element={<ConfirmBooking />} />
+                <Route path="/complete/:key" element={<CompleteBooking />} />
             </Routes>
         </BrowserRouter>
     );

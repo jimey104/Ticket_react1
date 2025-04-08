@@ -1,95 +1,42 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 
-function ReservationInfo() {
-    const { rId } = useParams();
-    const navigate = useNavigate();
+function ConfirmPage() {
+    const { key } = useParams(); // URL 파라미터로부터 key 받기
+    const [data, setData] = useState(null);
 
-    const [reservationData, setReservationData] = useState(null);
-    const [rPhone, setRPhone] = useState("");
-    const [rEmail, setREmail] = useState("");
-    const [error, setError] = useState("");
-
-    // 백엔드에서 예약 정보 가져오기
     useEffect(() => {
-        axios.get(`http://localhost:3001/reservations/${rId}`)
-            .then(response => {
-                console.log("📌 예약 데이터:", response.data);
-                setReservationData(response.data);
-            })
-            .catch(error => {
-                console.error("🚨 예약 정보 로드 실패:", error);
-                setError("예약 정보를 불러오지 못했습니다.");
-            });
-    }, [rId]);
-
-    const handleReserve = () => {
-        if (!reservationData) {
-            setError("예약 정보가 없습니다.");
-            return;
-        }
-
-        const requestData = {
-            tId: reservationData.tId,
-            rSpot: reservationData.rSpot, // 좌석 번호
-            rSpotStatus: "true",
-            rTime: new Date().toISOString(), // 예매 시간 자동 입력
-            rPhone: rPhone,
-            rEmail: rEmail
+        const fetchData = async () => {
+            try {
+                const response = await axios.get(`http://localhost:8787/reservation/confirm?key=${key}`);
+                setData(response.data);
+            } catch (error) {
+                console.error("❌ 예매 확인 중 오류:", error);
+            }
         };
 
-        console.log("📌 전송할 데이터:", requestData);
+        if (key) fetchData();
+    }, [key]);
 
-        axios.post(`http://localhost:3001/reservations?rId=${rId}`, requestData, {
-            headers: { "Content-Type": "application/json" }
-        })
-            .then(response => {
-                console.log("✅ 예매 성공:", response.data);
-                navigate(`/confirmation/${rId}`);
-            })
-            .catch(error => {
-                console.error("🚨 예매 실패:", error.response ? error.response.data : error.message);
-                setError("예매에 실패했습니다. 다시 시도해주세요.");
-            });
-    };
+    if (!key) return <p>잘못된 접근입니다. key가 없습니다.</p>;
+    if (!data) return <p>데이터를 불러오는 중...</p>;
+
+    const { reservationDTO, rSpots } = data;
 
     return (
         <div>
-            <h1>예매 정보 확인</h1>
-            {error && <p style={{ color: "red" }}>{error}</p>}
-
-            {reservationData ? (
-                <div>
-                    <h2>🎭 공연 정보</h2>
-                    <p><strong>제목:</strong> {reservationData.pTitle}</p>
-                    <p><strong>장소:</strong> {reservationData.pPlace}</p>
-                    <p><strong>날짜:</strong> {reservationData.pDate}</p>
-                    <p><strong>가격:</strong> {reservationData.pPrice.toLocaleString()}원</p>
-
-                    <h2>🎟 좌석 정보</h2>
-                    <p><strong>좌석 번호:</strong> {reservationData.rSpot}</p>
-
-                    <h2>📞 예매자 정보 입력</h2>
-                    <input
-                        type="text"
-                        placeholder="전화번호 입력"
-                        value={rPhone}
-                        onChange={(e) => setRPhone(e.target.value)}
-                    />
-                    <input
-                        type="email"
-                        placeholder="이메일 입력"
-                        value={rEmail}
-                        onChange={(e) => setREmail(e.target.value)}
-                    />
-                    <button onClick={handleReserve}>예매 완료</button>
-                </div>
-            ) : (
-                <p>예약 정보를 불러오는 중...</p>
-            )}
+            <h2>예매 확인</h2>
+            <ul>
+                <li><strong>공연 제목:</strong> {reservationDTO.pTitle}</li>
+                <li><strong>장소:</strong> {reservationDTO.pPlace}</li>
+                <li><strong>날짜:</strong> {reservationDTO.pDate}</li>
+                <li><strong>가격:</strong> {reservationDTO.pPrice}</li>
+                <li><strong>선택한 좌석:</strong> {rSpots.join(", ")}</li>
+                <li><strong>예약자 이메일:</strong> {reservationDTO.rEmail}</li>
+            </ul>
         </div>
     );
 }
 
-export default ReservationInfo;
+export default ConfirmPage;
